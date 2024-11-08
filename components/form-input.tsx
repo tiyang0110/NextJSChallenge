@@ -1,5 +1,5 @@
 import { EnvelopeIcon, UserIcon, KeyIcon } from "@heroicons/react/24/solid";
-import { ForwardedRef, InputHTMLAttributes } from "react";
+import { InputHTMLAttributes } from "react";
 
 interface FormInputProps{
   name: string;
