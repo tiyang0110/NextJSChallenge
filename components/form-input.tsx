@@ -1,17 +1,13 @@
 import { EnvelopeIcon, UserIcon, KeyIcon } from "@heroicons/react/24/solid";
+import { ForwardedRef, InputHTMLAttributes } from "react";
 
 interface FormInputProps{
-  type: string;
   name: string;
-  placeholder: string;
-  required: boolean;
   errors?: string[];
   icon: string;
 }
 
-export default function FormInput({type, name, placeholder, required, errors=[], icon}:FormInputProps){
-
-
+export default function FormInput({name, errors=[], icon, ...rest}:FormInputProps & InputHTMLAttributes<HTMLInputElement>){
   return (
     <div className="group">
       <div className={`${errors.length !== 0 ? 'ring-red-500' : 'ring-neutral-200'} group-focus-within:ring-2 group-focus-within:ring-neutral-500 group-focus-within:outline-none flex items-center gap-3 bg-transparent rounded-full px-4 w-full h-10 ring-1 border-none placeholder:text-neutral-400`}>
@@ -22,9 +18,11 @@ export default function FormInput({type, name, placeholder, required, errors=[],
         ) : (
           <KeyIcon className="size-6" />
         )}
-        <input className="w-full outline-none" type={type} name={name} placeholder={placeholder} required={required} />
+        <input className="w-full outline-none" name={name} {...rest} />
       </div>
-      <span className="text-red-500 font-medium pl-3">{errors}</span>
+      {errors.map((error, i) => (
+        <span key={i} className="text-red-500 font-medium pl-3">{error}</span>
+      ))}
     </div>
   )
 }
