@@ -1,7 +1,11 @@
 "use server";
 
 import { PASSWORD_REGEX, PASSWORD_REGEX_ERROR } from "@/lib/constants";
+import db from "@/lib/db";
 import { z } from "zod";
+import bcrypt from "bcrypt";
+import getSession from "@/lib/session";
+import { redirect } from "next/navigation";
 
 const checkIsZodEmail = (email:string) => {
   return email.endsWith('@zod.com');
@@ -9,14 +13,26 @@ const checkIsZodEmail = (email:string) => {
 
 const formSchema = z.object({
   email: z.string().email().toLowerCase().refine(checkIsZodEmail, '@zod.com 이메일만 사용하실 수 있습니다.'),
-  username: z.string().trim().min(5, 'Username은 최소 5자 이상 입력해야 합니다.'),
   password: z.string().min(10).regex(PASSWORD_REGEX, PASSWORD_REGEX_ERROR),
 });
 
-export async function handleForm(prevState:any, formData: FormData){
+// region 세션 저장
+export const SetSession = async (id:number) => {
+  try{
+    const session = await getSession();
+    session.id = id;
+    await session.save();
+  }catch(e){
+    console.log(e);
+    return false;
+  }
+
+  return true;
+}
+
+export async function login(prevState:any, formData: FormData){
   const data = {
     email: formData.get('email'),
-    username: formData.get('username'),
     password: formData.get('password')
   }
 
@@ -25,12 +41,26 @@ export async function handleForm(prevState:any, formData: FormData){
   if(!result.success){
     return { ...result.error.flatten(), success: false };
   }else{
-    return { ...result, 
-      fieldErrors: {
-        email: [],
-        username: [],
-        password: []
+    const user = await db.user.findUnique({
+      where: { email: result.data.email },
+      select: {
+        id: true,
+        password: true
       }
-    };
+    });
+
+    const ok = await bcrypt.compare(result.data.password, user!.password ?? "");
+
+    if(ok){
+      await SetSession(user!.id);
+      redirect('/profile');
+    }else{
+      return { ...result, 
+        fieldErrors: {
+          email: [],
+          password: ['잘못된 비밀번호 입니다.']
+        }
+      };
+    }
   }
 }
