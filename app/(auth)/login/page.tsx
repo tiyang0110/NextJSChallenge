@@ -3,7 +3,7 @@
 import Input from "@/components/form-input";
 import FormBtn from "@/components/form-btn";
 import { useFormState } from "react-dom";
-import { handleForm } from "./create-account/actions";
+import { handleForm } from "../create-account/actions";
 import { CheckCircleIcon } from "@heroicons/react/24/solid";
 import Link from "next/link";
 import { login } from "./actions";

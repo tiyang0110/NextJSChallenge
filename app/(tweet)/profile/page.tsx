@@ -1,5 +1,6 @@
 import db from "@/lib/db";
 import getSession from "@/lib/session";
+import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
 
 async function getUserData(){
@@ -16,7 +17,6 @@ async function getUserData(){
   notFound();
 }
 
-
 export default async function Profile(){
   const { userInfo, tweets, likes } = await getUserData();
   const logout = async () => {
@@ -29,7 +29,7 @@ export default async function Profile(){
   }
 
   return (
-    <div>
+    <div className="p-3">
       <h1>{`반갑습니다 ${userInfo.username}`}</h1>
       <div className="flex gap-3">
         <span>{`당신의 트윗 수는 : ${tweets.length}`}</span>
@@ -38,6 +38,9 @@ export default async function Profile(){
       <form action={logout}>
         <button>Log out</button>
       </form>
+      <Link href='/'>
+        <button>트윗 목록으로</button>
+      </Link>
     </div>
   )
 }

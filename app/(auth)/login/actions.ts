@@ -53,7 +53,7 @@ export async function login(prevState:any, formData: FormData){
 
     if(ok){
       await SetSession(user!.id);
-      redirect('/profile');
+      redirect('/');
     }else{
       return { ...result, 
         fieldErrors: {
