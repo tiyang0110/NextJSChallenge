@@ -9,6 +9,7 @@ interface Routes {
 const publicOnlyUrls: Routes = {
   '/login': true,
   '/create-account': true,
+  '/detail/*': true
 }
 
 export async function middleware(request: NextRequest){
