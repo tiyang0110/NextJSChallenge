@@ -9,12 +9,13 @@ interface Routes {
 const publicOnlyUrls: Routes = {
   '/login': true,
   '/create-account': true,
-  '/detail/*': true
 }
 
 export async function middleware(request: NextRequest){
   const session = await getSession();
   const exists = publicOnlyUrls[request.nextUrl.pathname];
+
+  console.log(session);
 
   if(!session.id){
     if(!exists){

@@ -62,7 +62,7 @@ export default async function TweetDetail({params}:{ params: { id:string }}){
 
     const targetTweet = Math.floor(Math.random() * (newTweets.length - 0) + 0);
 
-    if(!newTweets) redirect('/');
+    if(newTweets.length === 0) redirect('/');
 
     redirect(`/detail/${newTweets[targetTweet].id}`);
   }

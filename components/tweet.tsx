@@ -12,7 +12,7 @@ interface TweetProps {
 
 export default function Tweet({id, tweet, created_at, user:{ username }}:TweetProps){
   return (
-    <div className="flex flex-col gap-3 p-3 border-b cursor-pointer max-h-[200px]">
+    <div className="flex flex-col gap-3 p-3 border-b max-h-[200px]">
       <Link href={`/detail/${id}`}>
         <div className="flex gap-3">
           <div className="font-bold">{username}</div>

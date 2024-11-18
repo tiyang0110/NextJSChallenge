@@ -4,7 +4,7 @@ import { InputHTMLAttributes } from "react";
 interface FormInputProps{
   name: string;
   errors?: string[];
-  icon: string;
+  icon?: string;
 }
 
 export default function FormInput({name, errors=[], icon, ...rest}:FormInputProps & InputHTMLAttributes<HTMLInputElement>){
@@ -15,8 +15,10 @@ export default function FormInput({name, errors=[], icon, ...rest}:FormInputProp
           <EnvelopeIcon className="size-6" />
         ) : icon === 'person' ? (
           <UserIcon className="size-6" />
-        ) : (
+        ) : icon === 'password' ? (
           <KeyIcon className="size-6" />
+        ) : (
+          null
         )}
         <input className="w-full outline-none" name={name} {...rest} />
       </div>
