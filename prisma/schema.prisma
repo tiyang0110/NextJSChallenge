@@ -32,12 +32,13 @@ model Tweet {
 }
 
 model Like {
-  id         Int      @id @default(autoincrement())
   created_at DateTime @default(now())
   user       User     @relation(fields: [userId], references: [id])
   userId     Int
   tweet      Tweet    @relation(fields: [tweetId], references: [id])
   tweetId    Int
+
+  @@id(name: "id", [userId, tweetId])
 }
 
 model Response {

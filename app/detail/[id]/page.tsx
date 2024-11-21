@@ -5,6 +5,10 @@ import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
 import FormInput from "@/components/form-input";
 import { XMarkIcon } from "@heroicons/react/24/outline";
+import AddReponseForm from "@/components/add-response-form";
+import LikeButton from "@/components/like-button";
+import { unstable_cache as nextCache } from "next/cache";
+
 
 async function chectIsOwner(userId:number){
   const session = await getSession();
@@ -34,6 +38,9 @@ async function getTweetDetail(id:number){
             }
           }
         }
+      },
+      _count: {
+        select: { likes: true }
       }
     }
   });
@@ -41,21 +48,37 @@ async function getTweetDetail(id:number){
   return tweetDetail;
 }
 
+const getCachedTweetDetail = nextCache(getTweetDetail, ['tweet-detila'], { revalidate: 60 });
+
+async function getLikeStatus(tweetId:number, userId:number){
+  const isLiked = await db.like.findUnique({
+    where: { id: { tweetId, userId }}
+  });
+
+  const likeCount = await db.like.count({
+    where: { tweetId }
+  });
+
+  return { isLiked: Boolean(isLiked), likeCount }
+}
+
+const getCachedLikeStatus = (tweetId:number, userId:number) => {
+  const cachedOperation = nextCache(getLikeStatus, ['like-status'], { tags: [`like-status-${tweetId}`] });
+
+  return cachedOperation(tweetId, userId);
+}
+
+
 export default async function TweetDetail({params}:{ params: { id:string }}){
   const id = Number(params.id);
 
   if(isNaN(id)) return notFound();
 
-  const tweetDetail = await getTweetDetail(id);
-
-  console.log(tweetDetail);
+  const tweetDetail = await getCachedTweetDetail(id);
 
   if(!tweetDetail) return notFound();
 
   const isOwner = await chectIsOwner(tweetDetail.userId);
-
-  // const [state, action] = useFormState(addComment, null);
-
 
   const deleteTweet = async () => {
     "use server";
@@ -67,24 +90,26 @@ export default async function TweetDetail({params}:{ params: { id:string }}){
     redirect('/');
   }
 
- const changeTweetDetail = async () => {
-  "use server";
+  const changeTweetDetail = async () => {
+    "use server";
 
-  const newTweets = await db.tweet.findMany({
-    where: {
-      NOT: {
-        id: tweetDetail.id
-      }
-    },
-    select: { id: true }
-  });
+    const newTweets = await db.tweet.findMany({
+      where: {
+        NOT: {
+          id: tweetDetail.id
+        }
+      },
+      select: { id: true }
+    });
 
-  const targetTweet = Math.floor(Math.random() * (newTweets.length - 0) + 0);
+    const targetTweet = Math.floor(Math.random() * (newTweets.length - 0) + 0);
 
-  if(newTweets.length === 0) redirect('/');
+    if(newTweets.length === 0) redirect('/');
 
-  redirect(`/detail/${newTweets[targetTweet].id}`);
+    redirect(`/detail/${newTweets[targetTweet].id}`);
   }
+
+  const { likeCount, isLiked } = await getCachedLikeStatus(id, tweetDetail.userId);
 
   return (
     <div className="bg-slate-100 h-screen p-3 flex flex-col gap-4">
@@ -95,22 +120,23 @@ export default async function TweetDetail({params}:{ params: { id:string }}){
       <div className="mb-10">
         <p>{tweetDetail.tweet}</p>
       </div>
-      <div className="flex justify-end gap-3 *:font-semibold *:text-md border-b border-slate-300 pb-3">
-        <Link className="bg-gray-600 text-white px-5 py-1 rounded-lg" href='/'>목록</Link>
-        <form action={changeTweetDetail}>
-          <button className="bg-emerald-600 text-white px-5 py-1 rounded-lg">다른 글 보기</button>
-        </form>
-        {isOwner && (
-          <form action={deleteTweet}>
-            <button className="bg-orange-700 text-white px-5 py-1 rounded-lg">삭제</button>
+      <div className="flex justify-between gap-3 *:font-semibold *:text-md border-b border-slate-300 pb-3">
+        <div>
+          <LikeButton likeCount={likeCount} isLiked={isLiked} tweetId={id} />
+        </div>
+        <div className="flex gap-3 items-center">
+          <Link className="bg-gray-600 text-white px-5 py-1 rounded-lg" href='/'>목록</Link>
+          <form action={changeTweetDetail}>
+            <button className="bg-emerald-600 text-white px-5 py-1 rounded-lg">다른 글 보기</button>
           </form>
-        )}
+          {isOwner && (
+            <form action={deleteTweet}>
+              <button className="bg-orange-700 text-white px-5 py-1 rounded-lg">삭제</button>
+            </form>
+          )}
+        </div>
       </div>
-      <form className="flex items-center gap-3 border-b border-slate-300 pb-4">
-        <input type="text" name="" placeholder="" className="flex-grow"/>
-        <button className="bg-emerald-600 text-white px-5 py-1 rounded-lg">댓글등록</button>
-        {/* <FormInput type="text" name="content" placeholder="댓글을 입력하세요." required={true} errors={state?.fieldErrors.content} /> */}
-      </form>
+      <AddReponseForm responseList={tweetDetail.responses} />
       <div className="flex flex-col gap-3 flex-grow overflow-y-auto">
         {tweetDetail.responses.map((response, i) => (
           <div className="flex justify-between">
