@@ -15,8 +15,6 @@ export async function middleware(request: NextRequest){
   const session = await getSession();
   const exists = publicOnlyUrls[request.nextUrl.pathname];
 
-  console.log(session);
-
   if(!session.id){
     if(!exists){
       return NextResponse.redirect(new URL('/login', request.url));

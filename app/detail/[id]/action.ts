@@ -2,33 +2,42 @@
 
 import db from "@/lib/db";
 import getSession from "@/lib/session";
-import { revalidateTag } from "next/cache";
-import { redirect } from "next/navigation";
+import { revalidatePath, revalidateTag } from "next/cache";
 import z from "zod"
 
 const formSchema = z.object({
   content: z.string().min(2, '댓글은 최소 두글자 이상 입력해 주세요.')
 });
 
-export async function addResponse(prevState:any, formData: FormData){
-  const data = {
-    content: formData.get('content')
-  }
+export async function addResponse(content:string, tweetId:number){
+  const session = await getSession();
 
-  console.log('inin');
-  console.log(formData);
-
-  const result = await formSchema.spa(data);
+  const result = await formSchema.spa({ content });
 
   if(!result.success){
-    return { ...result.error?.flatten(), succes: false };
+    return { ...result.error.flatten(), success: false };
   }else{
-    const session = await getSession();
-      // 댓글 저장하고
-      // 태그처리
+    await db.response.create({
+      data: {
+        content,
+        userId: session.id!,
+        tweetId
+      }
+    });
+
+    revalidatePath(`/detail/${tweetId}`);
+
+    return { success: true, formErrors: [], fieldErrors: { content: [] } };
   }
 }
 
+export async function deleteResponse(responseId:number, tweetId:number){
+  await db.response.delete({
+    where: { id: responseId }
+  });
+
+  revalidatePath(`/detail/${tweetId}`);
+}
 
 export const likeTweet = async (tweetId:number) => {
   const session = await getSession();

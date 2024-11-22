@@ -3,12 +3,9 @@ import getSession from "@/lib/session";
 import { formatToTimeAgo } from "@/lib/utils";
 import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
-import FormInput from "@/components/form-input";
-import { XMarkIcon } from "@heroicons/react/24/outline";
 import AddReponseForm from "@/components/add-response-form";
 import LikeButton from "@/components/like-button";
 import { unstable_cache as nextCache } from "next/cache";
-
 
 async function chectIsOwner(userId:number){
   const session = await getSession();
@@ -38,9 +35,6 @@ async function getTweetDetail(id:number){
             }
           }
         }
-      },
-      _count: {
-        select: { likes: true }
       }
     }
   });
@@ -48,7 +42,11 @@ async function getTweetDetail(id:number){
   return tweetDetail;
 }
 
-const getCachedTweetDetail = nextCache(getTweetDetail, ['tweet-detila'], { revalidate: 60 });
+const getCachedTweetDetail = async (tweetId:number) => {
+  const cachedOperation = nextCache(getTweetDetail, ['tweet-detail'], { tags: [`tweet-detail-${tweetId}`]});
+
+  return cachedOperation(tweetId);
+}
 
 async function getLikeStatus(tweetId:number, userId:number){
   const isLiked = await db.like.findUnique({
@@ -67,7 +65,6 @@ const getCachedLikeStatus = (tweetId:number, userId:number) => {
 
   return cachedOperation(tweetId, userId);
 }
-
 
 export default async function TweetDetail({params}:{ params: { id:string }}){
   const id = Number(params.id);
@@ -136,21 +133,7 @@ export default async function TweetDetail({params}:{ params: { id:string }}){
           )}
         </div>
       </div>
-      <AddReponseForm responseList={tweetDetail.responses} />
-      <div className="flex flex-col gap-3 flex-grow overflow-y-auto">
-        {tweetDetail.responses.map((response, i) => (
-          <div className="flex justify-between">
-            <div className="flex gap-3 items-center">
-              <span className="font-semibold">{response.user.username}</span>
-              <span className="text-sm">{response.content}</span>
-            </div>
-            <div className="flex items-center gap-2">
-              <span>{formatToTimeAgo(response.created_at)}</span>
-              <XMarkIcon className="size-4 cursor-pointer" />
-            </div>
-          </div>
-        ))}
-      </div>
+      <AddReponseForm responseList={tweetDetail.responses} tweetId={id} />
     </div>
   )
 }
