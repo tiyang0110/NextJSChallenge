@@ -3,6 +3,7 @@
 import { zodResultProps } from "@/lib/constants";
 import db from "@/lib/db";
 import getSession from "@/lib/session";
+import { revalidateTag } from "next/cache";
 import { redirect } from "next/navigation";
 import z from "zod"
 
@@ -39,6 +40,8 @@ export async function addTweet(_:zodResultProps | addTweePrevProps | null | unde
         select: { id: true }
       });
   
+      revalidateTag('tweet-list');
+
       redirect(`/detail/${tweet.id}`);
     }
   }
