@@ -7,6 +7,17 @@ import db from "@/lib/db";
 import getSession from "@/lib/session";
 import { redirect } from "next/navigation";
 
+interface joinUserProps {
+  success: boolean;
+  formErrors: string[];
+  fieldErrors: {
+      password?: string[];
+      confirmPassword?: string[];
+      email?: string[];
+      username?: string[];
+  };
+}
+
 const checkIsZodEmail = (email:string) => email.endsWith('@zod.com');
 const checkPasswords = ({password, confirmPassword}:{password:string, confirmPassword:string}) => password === confirmPassword;
 
@@ -52,7 +63,7 @@ const formSchema = z.object({
   path: ['confirmPassword']
 });
 
-export async function handleForm(prevState:any, formData: FormData){
+export async function handleForm(_:joinUserProps | null, formData: FormData){
   const data = {
     email: formData.get('email'),
     username: formData.get('username'),

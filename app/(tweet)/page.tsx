@@ -28,7 +28,7 @@ export default async function MainList(){
 
   return (
     <div className="flex flex-col py-2 overflow-y-auto">
-      {getTweets.map((tweet, i) => <Tweet key={tweet.id} {...tweet} />)}
+      {getTweets.map((tweet) => <Tweet key={tweet.id} {...tweet} />)}
       <AddTweet />
     </div>
   )

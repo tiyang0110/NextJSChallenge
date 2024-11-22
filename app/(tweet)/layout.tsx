@@ -1,7 +1,5 @@
 import TabMenuBtn from "@/components/tab-menu-btn";
-import getSession from "@/lib/session";
 import type { Metadata } from "next";
-import { redirect } from "next/navigation";
 
 export const metadata: Metadata = {
   title: "Welcome Tweet",
@@ -13,17 +11,6 @@ export default async function TwwetLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  const logout = async () => {
-    "use server";
-
-    const session = await getSession();
-    if(session.id){
-      session.destroy();
-    }
-
-    redirect('/login');
-  }
-
   return (
     <div className={`bg-slate-100 flex flex-col h-screen`}>
       <div className="flex flex-col gap-3 pt-4 border-b border-black shadow-lg shadow-slate-100-100">

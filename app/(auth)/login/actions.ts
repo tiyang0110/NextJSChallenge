@@ -1,6 +1,6 @@
 "use server";
 
-import { PASSWORD_REGEX, PASSWORD_REGEX_ERROR } from "@/lib/constants";
+import { PASSWORD_REGEX, PASSWORD_REGEX_ERROR, zodResultProps } from "@/lib/constants";
 import db from "@/lib/db";
 import { z } from "zod";
 import bcrypt from "bcrypt";
@@ -30,7 +30,7 @@ export const SetSession = async (id:number) => {
   return true;
 }
 
-export async function login(prevState:any, formData: FormData){
+export async function login(_:zodResultProps | null, formData: FormData){
   const data = {
     email: formData.get('email'),
     password: formData.get('password')
@@ -55,7 +55,8 @@ export async function login(prevState:any, formData: FormData){
       await SetSession(user!.id);
       redirect('/');
     }else{
-      return { ...result, 
+      return { ...result,
+        formErrors: [],
         fieldErrors: {
           email: [],
           password: ['잘못된 비밀번호 입니다.']
