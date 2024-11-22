@@ -7,6 +7,12 @@ async function getTweetList(){
     include: {
       user: {
         select: { username: true }
+      },
+      _count: {
+        select: {
+          likes: true,
+          responses: true
+        }
       }
     },
     orderBy: {

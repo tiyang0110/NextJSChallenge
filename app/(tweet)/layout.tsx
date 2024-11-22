@@ -28,11 +28,7 @@ export default async function TwwetLayout({
     <div className={`bg-slate-100 flex flex-col h-screen`}>
       <div className="flex flex-col gap-3 pt-4 border-b border-black shadow-lg shadow-slate-100-100">
         <div className="flex justify-between items-center *:w-full px-5">
-          <div></div>
           <h1 className="text-center font-bold text-xl">Hello 김테스트1</h1>
-          <form className="flex justify-end" action={logout}>
-            <button>Log out</button>
-          </form>
         </div>
         <div className="flex w-full *:w-full *:py-2 *:text-center">
           <TabMenuBtn href='/' menuName="List" />

@@ -30,17 +30,16 @@ export default async function Profile(){
 
   return (
     <div className="p-3">
-      <h1>{`반갑습니다 ${userInfo.username}`}</h1>
-      <div className="flex gap-3">
-        <span>{`당신의 트윗 수는 : ${tweets.length}`}</span>
-        <span>{`당신의 좋아요 수는 : ${likes.length}`}</span>
+      <div className="flex items-center justify-between  mb-5">
+        <h1 className="text-2xl font-bold">{`반갑습니다 ${userInfo.username}`}</h1>
+        <form action={logout}>
+          <button className="bg-emerald-400 px-3 py-1 rounded-full text-white">Log out</button>
+        </form>
       </div>
-      <form action={logout}>
-        <button>Log out</button>
-      </form>
-      <Link href='/'>
-        <button>트윗 목록으로</button>
-      </Link>
+      <div className="flex gap-3">
+        <span>{`당신이 작성한 수는 : ${tweets.length}`}</span>
+        <span>{`당신이 받은 좋아요 수는 : ${likes.length}`}</span>
+      </div>
     </div>
   )
 }
