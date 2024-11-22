@@ -27,7 +27,7 @@ async function getTweetList(){
 const getCachedTweetList = async () => {
   const cachedOperation = nextCache(getTweetList, ['tweet-list'], { 
     tags: ['tweet-list'],
-    revalidate: 30
+    revalidate: 10
   });
 
   return cachedOperation();
